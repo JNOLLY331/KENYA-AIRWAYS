@@ -42,7 +42,7 @@ export default function BookingForm({ booking, onClose, onSaved }) {
     });
 
     const [newPassenger, setNewPassenger] = useState(false);
-    const [passengerForm, setPassengerForm] = useState({ full_name: '', passport_number: '', phone: '', email: '' });
+    const [fullName, setFullName] = useState(booking?.passenger_detail?.full_name || '');
 
     useEffect(() => {
         Promise.all([
@@ -57,43 +57,54 @@ export default function BookingForm({ booking, onClose, onSaved }) {
         setNextFlight(null);
     };
 
-    const handleSavePassenger = async () => {
-        const e = {};
-        if (!passengerForm.full_name.trim()) e.full_name = 'Name required';
-        if (!passportRegex.test(passengerForm.passport_number)) e.passport_number = 'Invalid Passport';
-        if (!phoneRegex.test(passengerForm.phone)) e.phone = 'Format: +254...';
-        if (!passengerForm.email.includes('@')) e.email = 'Invalid Email';
-
-        if (Object.keys(e).length) { setErrors(e); return; }
-        try {
-            const { data } = await api.post('/api/passengers/', passengerForm);
-            setPassengers(prev => [data, ...prev]);
-            setForm(f => ({ ...f, passenger: data.id }));
-            setNewPassenger(false);
-            toast.success('Passenger profile created!');
-        } catch (err) {
-            toast.error('Failed to create traveler profile.');
-        }
-    };
+    // Passenger saving via registry is removed. We autogenerate on submit.
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!fullName.trim()) {
+            toast.error('Passenger Full Name is required.');
+            return;
+        }
+
         setLoading(true);
         try {
+            let passId = form.passenger;
+
+            if (!booking) {
+                // Create a passenger on the fly
+                // Must be 6-10 uppercase letters/digits, no hyphens
+                const randomPassport = 'KQ' + Math.floor(10000000 + Math.random() * 90000000).toString().substring(0, 8);
+                const { data: passData } = await api.post('/api/passengers/', {
+                    full_name: fullName,
+                    passport_number: randomPassport,
+                    phone: '+254700000000',
+                    email: user?.email || 'passenger@kenya-airways.com'
+                });
+                passId = passData.id;
+            } else if (booking && form.passenger) {
+                // Update existing passenger if name changed
+                if (fullName !== booking.passenger_detail?.full_name) {
+                    await api.patch(`/api/passengers/${form.passenger}/`, { full_name: fullName });
+                }
+            }
+
+            const payload = { ...form, passenger: passId };
+
             let res;
             if (booking) {
-                res = await api.patch(`/api/bookings/${booking.id}/`, form);
+                res = await api.patch(`/api/bookings/${booking.id}/`, payload);
                 toast.success('Booking updated!');
             } else {
-                res = await api.post('/api/bookings/', form);
+                res = await api.post('/api/bookings/', payload);
                 toast.success(`Booking confirmed! ID: ${res.data.booking_code}`);
                 if (res.data.next_available_flight) setNextFlight(res.data.next_available_flight);
             }
             onSaved?.();
-            if (!res.data.next_available_flight) onClose();
+            if (!res?.data?.next_available_flight) onClose();
         } catch (err) {
             const d = err.response?.data;
-            toast.error(d?.non_field_errors?.[0] || 'Booking failed. Check seat availability.');
+            toast.error(d?.non_field_errors?.[0] || 'Booking failed. Check your details.');
         } finally {
             setLoading(false);
         }
@@ -141,36 +152,19 @@ export default function BookingForm({ booking, onClose, onSaved }) {
             <div className="divider" style={{ margin: '0.5rem 0 1.25rem' }} />
 
             <div>
-                <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                    <label>Passenger Identification</label>
-                    {user?.is_staff && (
-                        <button type="button" onClick={() => setNewPassenger(!newPassenger)} style={{ background: 'none', border: 'none', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <MdPersonAdd size={16} /> {newPassenger ? 'Use Registry' : 'Add New'}
-                        </button>
-                    )}
-                </div>
-                {!newPassenger ? (
-                    <div className="form-group">
-                        <select value={form.passenger} onChange={e => set('passenger', e.target.value)} required>
-                            <option value="">— Select from Registry —</option>
-                            {passengers.map(p => <option key={p.id} value={p.id}>{p.full_name} ({p.passport_number})</option>)}
-                        </select>
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                    <label>Passenger Full Name</label>
+                    <div style={{ position: 'relative' }}>
+                        <input
+                            placeholder="e.g. John Doe"
+                            value={fullName}
+                            onChange={e => setFullName(e.target.value)}
+                            required
+                            style={{ padding: '0.75rem', fontSize: '1rem', width: '100%' }}
+                        />
                     </div>
-                ) : (
-                    user?.is_staff && (
-                        <div className="card-static" style={{ padding: '1.25rem', marginBottom: '1.25rem', background: 'var(--navy-mid)' }}>
-                            <div className="grid-2">
-                                <div className="form-group"><input placeholder="Full Name" value={passengerForm.full_name} onChange={e => setPassengerForm({ ...passengerForm, full_name: e.target.value })} /></div>
-                                <div className="form-group"><input style={{ fontFamily: 'monospace' }} placeholder="Passport No." value={passengerForm.passport_number} onChange={e => setPassengerForm({ ...passengerForm, passport_number: e.target.value.toUpperCase() })} /></div>
-                            </div>
-                            <div className="grid-2">
-                                <div className="form-group"><input placeholder="Phone (+254...)" value={passengerForm.phone} onChange={e => setPassengerForm({ ...passengerForm, phone: e.target.value })} /></div>
-                                <div className="form-group"><input type="email" placeholder="Email Address" value={passengerForm.email} onChange={e => setPassengerForm({ ...passengerForm, email: e.target.value })} /></div>
-                            </div>
-                            <button type="button" onClick={handleSavePassenger} className="btn btn-secondary btn-block btn-sm">Enroll Traveler</button>
-                        </div>
-                    )
-                )}
+                    <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Name as it will appear on your ticket.</small>
+                </div>
             </div>
 
             <div className="form-row">

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Flight
+from .models import Flight, PopularDestination
 
 class FlightSerializer(serializers.ModelSerializer):
     seats_left_a = serializers.SerializerMethodField()
@@ -42,3 +42,15 @@ class FlightSerializer(serializers.ModelSerializer):
 
     def get_is_full_c(self, obj):
         return self.get_seats_left_c(obj) == 0
+
+class PopularDestinationSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PopularDestination
+        fields = ['id', 'city', 'code', 'detail', 'color', 'image', 'image_url']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None

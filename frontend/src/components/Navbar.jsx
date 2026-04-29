@@ -47,8 +47,9 @@ export default function Navbar() {
   ] : [];
 
   const ADMIN_LINKS = user?.is_staff ? [
+    { label: 'Admin', path: '/admin', icon: MdDashboard },
     { label: 'Passengers', path: '/passengers', icon: MdPerson },
-    { label: 'Staff registry', path: '/employees', icon: MdBadge },
+    { label: 'Staff', path: '/employees', icon: MdBadge },
     { label: 'Reports', path: '/reports', icon: MdInsights },
   ] : [];
 
@@ -87,16 +88,16 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Links */}
-          <nav className="hide-mobile" style={{ display: 'flex', gap: '2rem' }}>
+          <nav className="hide-mobile" style={{ display: 'flex', gap: user?.is_staff ? '1.2rem' : '2rem' }}>
             {ALL_LINKS.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 style={({ isActive }) => ({
                   fontWeight: 700,
-                  fontSize: '0.88rem',
+                  fontSize: user?.is_staff ? '0.82rem' : '0.88rem',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.04em',
                   color: isActive ? 'var(--red)' : (scrolled ? '#CBD5E1' : 'var(--text-muted)'),
                   transition: 'var(--ease)'
                 })}
@@ -110,12 +111,17 @@ export default function Navbar() {
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 800, lineHeight: 1 }}>{user.username}</div>
-                  <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--red)', fontWeight: 800 }}>
-                    {user.is_staff ? 'Superuser' : 'Frequent Flyer'}
+                <Link to="/profile" title="View Profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, lineHeight: 1 }}>{user.username}</div>
+                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--red)', fontWeight: 800 }}>
+                      {user.is_staff ? 'Superuser' : 'Frequent Flyer'}
+                    </div>
                   </div>
-                </div>
+                  <div style={{ background: 'rgba(168, 2, 2, 0.1)', padding: '0.4rem', borderRadius: '50%', color: 'var(--red)' }}>
+                    <MdPerson size={20} />
+                  </div>
+                </Link>
                 <button className="btn btn-primary btn-sm" onClick={handleLogout} title="Sign Out">
                   <MdLogout size={16} />
                 </button>
@@ -194,13 +200,18 @@ export default function Navbar() {
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
               {user ? (
-                <button
-                  className="btn btn-primary btn-xl btn-block"
-                  onClick={handleLogout}
-                  style={{ justifyContent: 'center' }}
-                >
-                  <MdLogout size={20} /> Sign Out 
-                </button>
+                <>
+                  <Link to="/profile" className="btn btn-secondary btn-xl btn-block" onClick={() => setMobileOpen(false)} style={{ justifyContent: 'center', marginBottom: '1rem' }}>
+                    <MdPerson size={20} /> My Profile
+                  </Link>
+                  <button
+                    className="btn btn-primary btn-xl btn-block"
+                    onClick={handleLogout}
+                    style={{ justifyContent: 'center' }}
+                  >
+                    <MdLogout size={20} /> Sign Out
+                  </button>
+                </>
               ) : (
                 <Link to="/login" className="btn btn-primary btn-xl btn-block" onClick={() => setMobileOpen(false)}>
                   Sign In

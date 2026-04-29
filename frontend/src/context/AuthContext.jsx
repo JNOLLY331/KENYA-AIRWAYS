@@ -13,12 +13,11 @@ export function AuthProvider({ children }) {
         if (access) {
             try {
                 const decoded = jwtDecode(access);
-                // Check not expired
                 if (decoded.exp * 1000 > Date.now()) {
                     setUser({
                         id: decoded.user_id,
-                        username: decoded.username,
-                        is_staff: decoded.is_staff,
+                        email: decoded.email,
+                        is_staff: decoded.is_staff || false,
                     });
                 } else {
                     localStorage.clear();
@@ -36,39 +35,51 @@ export function AuthProvider({ children }) {
         loadUser();
     }, [loadUser]);
 
-    const login = async (username, password) => {
-        const { data } = await axios.post('/api/users/login/', { username, password });
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-        const decoded = jwtDecode(data.access);
-        const profile = await axios.get('/api/users/profile/');
-        setUser({
-            id: decoded.user_id,
-            username: decoded.username,
-            is_staff: profile.data.is_staff,
-        });
-        return profile.data;
+    // Fixed Login Function
+    const login = async (email, password) => {
+        try {
+            const { data } = await axios.post('/api/users/login/', {
+                email,
+                password
+            });
+
+            // Save tokens
+            localStorage.setItem('access', data.tokens.access);
+            localStorage.setItem('refresh', data.tokens.refresh);
+
+            // Set user state
+            setUser({
+                id: data.user.id,
+                email: data.user.email,
+                username: data.user.username,
+                is_staff: data.user.is_staff || false,
+            });
+
+            return data.user;
+
+        } catch (err) {
+            console.error("Login error:", err.response?.data);
+            throw err;
+        }
     };
 
     const register = async (formData) => {
         const { data } = await axios.post('/api/users/register/', formData);
-        localStorage.setItem('access', data.tokens.access);
-        localStorage.setItem('refresh', data.tokens.refresh);
-        setUser({
-            id: data.user.id,
-            username: data.user.username,
-            is_staff: data.user.is_staff,
-        });
-        return data;
+        return data; // Return data but do NOT set local tokens automatically
     };
 
     const logout = async () => {
         try {
             const refresh = localStorage.getItem('refresh');
-            await axios.post('/api/users/logout/', { refresh });
-        } catch { /* best effort */ }
-        localStorage.clear();
-        setUser(null);
+            if (refresh) {
+                await axios.post('/api/users/logout/', { refresh });
+            }
+        } catch (err) {
+            console.error("Logout error:", err.response?.data);
+        } finally {
+            localStorage.clear();
+            setUser(null);
+        }
     };
 
     return (

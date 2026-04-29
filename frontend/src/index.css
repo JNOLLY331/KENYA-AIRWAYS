@@ -1586,3 +1586,35 @@ code {
     color: #ffffff !important;
   }
 }
+@media (max-width: 768px) {
+  .booking-row-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  .booking-row-actions {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: flex-start !important;
+  }
+  .inquiry-search-form {
+    flex-direction: column !important;
+  }
+}
+
+.booking-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+}
+.booking-row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+.inquiry-search-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}

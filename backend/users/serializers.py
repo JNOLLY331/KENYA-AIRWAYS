@@ -21,15 +21,16 @@ class LoginSerializer(serializers.Serializer):
         email = attrs.get('email')
         password = attrs.get('password')
 
-        # authenticate() uses the backends defined in settings.py
         user = authenticate(
             request=self.context.get('request'),
-            username=email,
+            username=email,      # Important: passing email here
             password=password
         )
 
         if not user:
-            raise serializers.ValidationError('Invalid email or password.')
+            raise serializers.ValidationError({
+                "detail": "Invalid email or password."
+            })
 
         refresh = RefreshToken.for_user(user)
 
@@ -38,6 +39,9 @@ class LoginSerializer(serializers.Serializer):
                 'id': user.id,
                 'email': user.email,
                 'username': user.username,
+                'phone_number': user.phone_number,
+                'is_staff': user.is_staff,
+                'is_staff_member': user.is_staff_member,
             },
             'tokens': {
                 'refresh': str(refresh),

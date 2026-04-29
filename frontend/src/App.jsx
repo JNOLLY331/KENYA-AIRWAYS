@@ -17,11 +17,14 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
+import Profile from './pages/Profile';
 import Flights from './pages/Flights';
 import Booking from './pages/Booking';
 import Passenger from './pages/Passenger';
 import Employees from './pages/Employees';
 import Reports from './pages/Reports';
+import AdminDashboard from './pages/AdminDashboard';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
 
@@ -79,13 +82,16 @@ function AppShell() {
           {/* Public-only (redirects to home if already logged in) */}
           <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
           <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+          <Route path="/reset-password" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
 
           {/* Private — requires login */}
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/flights" element={<PrivateRoute><Flights /></PrivateRoute>} />
           <Route path="/bookings" element={<PrivateRoute><Booking /></PrivateRoute>} />
           <Route path="/passengers" element={<AdminRoute><Passenger /></AdminRoute>} />
 
           {/* Admin only — requires is_staff flag */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/employees" element={<AdminRoute><Employees /></AdminRoute>} />
           <Route path="/reports" element={<AdminRoute><Reports /></AdminRoute>} />
 

@@ -3,7 +3,7 @@
  * Refactored to use brand design system and Vanilla CSS classes.
  */
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -17,8 +17,9 @@ import {
 export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
+    const { state } = useLocation();
 
-    const [form, setForm] = useState({ username: '', password: '' });
+    const [form, setForm] = useState({ email: state?.email || '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPass, setShowPass] = useState(false);
@@ -30,18 +31,18 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.username.trim() || !form.password) {
+        if (!form.email.trim() || !form.password) {
             setError('Please fill in all fields.');
             return;
         }
 
         setLoading(true);
         try {
-            const user = await login(form.username, form.password);
-            toast.success(`Welcome back, ${user.username || form.username}!`);
+            const user = await login(form.email, form.password);
+            toast.success(`Welcome back, ${user.email || form.email}!`);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.detail || 'Incorrect username or password.');
+            setError(err.response?.data?.detail || 'Incorrect email or password.');
         } finally {
             setLoading(false);
         }
@@ -104,12 +105,12 @@ export default function Login() {
                                 }}
                             />
                             <input
-                                id="login-user"
-                                type="text"
-                                placeholder="Enter username"
-                                value={form.username}
-                                onChange={e => set('username', e.target.value)}
-                                autoComplete="username"
+                                id="login-email"
+                                type="email"
+                                placeholder="japhethanold@gmail.com"
+                                value={form.email}
+                                onChange={e => set('email', e.target.value)}
+                                autoComplete="email"
                                 style={{ paddingLeft: '2.5rem' }}
                             />
                         </div>
@@ -163,6 +164,12 @@ export default function Login() {
                 </form>
 
                 <div className="divider" />
+                <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    Forgot your password?{' '}
+                    <Link to="/reset-password" style={{ color: 'var(--red)', fontWeight: 700 }}>
+                        Reset Password
+                    </Link>
+                </p>
                 <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                     Don't have an account?{' '}
                     <Link to="/register" style={{ color: 'var(--red)', fontWeight: 700 }}>

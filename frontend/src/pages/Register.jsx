@@ -17,6 +17,40 @@ import {
     MdCheckCircle, MdErrorOutline
 } from 'react-icons/md';
 
+/* Helper — renders an icon input with optional error */
+const Field = ({ id, label, Icon, type = 'text', placeholder, field, value, onChange, error, autoComplete, right, min }) => (
+    <div className="form-group">
+        <label htmlFor={id}>{label}</label>
+        <div style={{ position: 'relative' }}>
+            <Icon
+                size={16}
+                style={{
+                    position: 'absolute', left: 12, top: '50%',
+                    transform: 'translateY(-50%)', color: 'var(--text-muted)',
+                    pointerEvents: 'none',
+                }}
+            />
+            <input
+                id={id}
+                type={type}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                autoComplete={autoComplete}
+                minLength={min}
+                style={{ paddingLeft: '2.4rem', paddingRight: right ? '2.8rem' : undefined }}
+                className={error ? 'input-error' : ''}
+            />
+            {right}
+        </div>
+        {error && (
+            <span className="error-msg">
+                <MdErrorOutline size={13} /> {error}
+            </span>
+        )}
+    </div>
+);
+
 export default function Register() {
     const { register } = useAuth();
     const navigate = useNavigate();
@@ -59,11 +93,11 @@ export default function Register() {
                 password: form.password,
                 phone_number: form.phone_number,
             });
-            toast.success('Account created successfully! Redirecting to login...');
+            toast.success('Account created successfully! Please login.');
 
             setTimeout(() => {
-                navigate('/login');
-            }, 1500);
+                navigate('/login', { state: { email: form.email } });
+            }, 1000);
         } catch (err) {
             const data = err.response?.data || {};
             const next = {};
@@ -81,41 +115,6 @@ export default function Register() {
             setLoading(false);
         }
     };
-
-    /* Helper — renders an icon input with optional error */
-    const Field = ({ id, label, Icon, type = 'text', placeholder, field, autoComplete,
-        right, min }) => (
-        <div className="form-group">
-            <label htmlFor={id}>{label}</label>
-            <div style={{ position: 'relative' }}>
-                <Icon
-                    size={16}
-                    style={{
-                        position: 'absolute', left: 12, top: '50%',
-                        transform: 'translateY(-50%)', color: 'var(--text-muted)',
-                        pointerEvents: 'none',
-                    }}
-                />
-                <input
-                    id={id}
-                    type={type}
-                    placeholder={placeholder}
-                    value={form[field]}
-                    onChange={e => set(field, e.target.value)}
-                    autoComplete={autoComplete}
-                    minLength={min}
-                    style={{ paddingLeft: '2.4rem', paddingRight: right ? '2.8rem' : undefined }}
-                    className={errors[field] ? 'input-error' : ''}
-                />
-                {right}
-            </div>
-            {errors[field] && (
-                <span className="error-msg">
-                    <MdErrorOutline size={13} /> {errors[field]}
-                </span>
-            )}
-        </div>
-    );
 
     return (
         <div
@@ -163,11 +162,11 @@ export default function Register() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-row">
-                        <Field id="reg-username" label="Username *" Icon={MdPerson} field="username" placeholder="johndoe" autoComplete="username" />
-                        <Field id="reg-phone" label="Phone Number" Icon={MdPhone} field="phone_number" placeholder="+254712345678" autoComplete="tel" />
+                        <Field id="reg-username" label="Username *" Icon={MdPerson} value={form.username} onChange={e => set('username', e.target.value)} error={errors.username} placeholder="johndoe" autoComplete="username" />
+                        <Field id="reg-phone" label="Phone Number" Icon={MdPhone} value={form.phone_number} onChange={e => set('phone_number', e.target.value)} error={errors.phone_number} placeholder="+254712345678" autoComplete="tel" />
                     </div>
 
-                    <Field id="reg-email" label="Email Address *" Icon={MdEmail} type="email" field="email" placeholder="you@example.com" autoComplete="email" />
+                    <Field id="reg-email" label="Email Address *" Icon={MdEmail} type="email" value={form.email} onChange={e => set('email', e.target.value)} error={errors.email} placeholder="you@example.com" autoComplete="email" />
 
                     <div className="form-row">
                         {/* Password with toggle */}

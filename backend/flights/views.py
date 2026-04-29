@@ -55,3 +55,15 @@ class FlightViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data)
 
         return Response({'message': 'No available flights found for this route and class.'}, status=404)
+
+from .models import PopularDestination
+from .serializers import PopularDestinationSerializer
+
+class PopularDestinationViewSet(viewsets.ModelViewSet):
+    queryset = PopularDestination.objects.all()
+    serializer_class = PopularDestinationSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]

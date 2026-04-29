@@ -101,3 +101,29 @@ def logout_view(request):
         return Response({
             'error': 'Invalid or expired token.'
         }, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+@permission_classes([permissions.IsAdminUser])
+def create_superuser_view(request):
+    try:
+        user = User.objects.create_superuser(
+            username=request.data['username'],
+            email=request.data['email'],
+            password=request.data['password'],
+            phone_number=request.data.get('phone_number', '+254000000000')
+        )
+        return Response({'message': 'Superuser created successfully.'}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def reset_password_view(request):
+    email = request.data.get('email')
+    new_password = request.data.get('new_password')
+    try:
+        user = User.objects.get(email__iexact=email)
+        user.set_password(new_password)
+        user.save()
+        return Response({'message': 'Password reset successfully!'})
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=404)

@@ -136,7 +136,7 @@ export default function Booking() {
                                 Enter a booking code to look up reservation details.
                             </p>
 
-                            <form onSubmit={handleInquiry} style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            <form onSubmit={handleInquiry} className="inquiry-search-form">
                                 <input
                                     id="inquiry-code-input"
                                     placeholder="e.g. ABC123DEF456"
@@ -270,14 +270,7 @@ function BookingRow({ booking, onEdit, onDelete, onDownload }) {
     const dep = booking.flight_detail ? new Date(booking.flight_detail.departure_time) : null;
 
     return (
-        <div
-            className="card"
-            style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr auto',
-                gap: '1.5rem', alignItems: 'center',
-            }}
-        >
+        <div className="card booking-row-grid">
             {/* Left: code + route */}
             <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
@@ -326,7 +319,7 @@ function BookingRow({ booking, onEdit, onDelete, onDownload }) {
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+            <div className="booking-row-actions">
                 <button className="btn btn-green btn-sm" onClick={onDownload} title="Download PDF ticket">
                     <HiOutlineTicket size={14} /> Ticket
                 </button>

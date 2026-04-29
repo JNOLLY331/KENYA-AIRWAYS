@@ -12,7 +12,8 @@ import toast from 'react-hot-toast';
 import {
     MdInsights, MdAssessment, MdCloudDownload,
     MdFileDownload, MdConfirmationNumber, MdPsychology,
-    MdEventNote, MdVerified, MdInfoOutline
+    MdEventNote, MdVerified, MdInfoOutline,
+    MdPeopleAlt, MdFlight, MdVerifiedUser
 } from 'react-icons/md';
 
 function AnimatedStat({ value, color }) {

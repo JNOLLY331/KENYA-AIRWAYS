@@ -68,6 +68,10 @@ INSTALLED_APPS = [
     
 ]
 AUTH_USER_MODEL = 'users.User'
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailBackend',  
+    'django.contrib.auth.backends.ModelBackend', 
+    ]
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
@@ -148,7 +152,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
@@ -157,6 +160,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
+    "https://kenya-airways-six.vercel.app",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
     "http://localhost:5173",
@@ -164,6 +168,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    "https://kenya-airways-six.vercel.app",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
     "http://localhost:5173",

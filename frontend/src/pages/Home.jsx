@@ -28,14 +28,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import SeatAvailability from '../components/SeatAvailability';
 import useTypewriter from '../hooks/useTypewriter';
-import heroImg from '../assets/hero.jpg';
-
-import london from '../assets/london.png';
-import dubai from '../assets/dubai.png';
-import amsterdam from '../assets/amsterdam.png';
-import paris from '../assets/paris.jpeg';
-import johannesburg from '../assets/johannesburg.jpg';
-import mumbai from '../assets/mumbai.jpeg';
+import heroImg from '../assets/hero.webp';
 
 import { IoAirplaneSharp } from 'react-icons/io5';
 import {
@@ -62,16 +55,7 @@ const HERO_PHRASES = [
     'Experience the Difference',
 ];
 
-/* Popular destination cards shown in the Swiper */
-const DESTINATIONS = [
-    { city: 'London', code: 'LHR', detail: 'Heathrow International', color: '#1D4ED8', image: london },
-    { city: 'Dubai', code: 'DXB', detail: 'Dubai International', color: '#C01E2E', image: dubai },
-    { city: 'Amsterdam', code: 'AMS', detail: 'Schiphol Airport', color: '#16A34A', image: amsterdam },
-    { city: 'Paris', code: 'CDG', detail: 'Charles de Gaulle', color: '#7C3AED', image: paris },
-    { city: 'Johannesburg', code: 'JNB', detail: 'O.R. Tambo International', color: '#D97706', image: johannesburg },
-    { city: 'Mumbai', code: 'BOM', detail: 'Chhatrapati Shivaji Maharaj', color: '#0284C7', image: mumbai },
-];
-
+/* Destinations loaded from backend dynamically */
 /* Testimonials */
 const TESTIMONIALS = [
     { name: 'Amara Osei', role: 'Business Traveller', stars: 5, text: 'The booking system is incredibly smooth and professional. Found my seat, chose my class, and had the ticket in my inbox in under 2 minutes.' },
@@ -158,8 +142,14 @@ export default function Home() {
     const [flights, setFlights] = useState([]);
     const [stats, setStats] = useState(null);
     const [loadingFlights, setLoadingFlights] = useState(true);
+    const [destinations, setDestinations] = useState([]);
 
     useEffect(() => {
+        // Fetch public destinations for hero slider
+        api.get('/api/flights/destinations/')
+            .then(r => setDestinations(r.data.results || r.data))
+            .catch(() => { });
+
         if (user) {
             api.get('/api/flights/')
                 .then(r => setFlights((r.data.results || r.data).slice(0, 6)))
@@ -192,6 +182,7 @@ export default function Home() {
                     <img
                         src={heroImg}
                         alt="Kenya Airways aircraft in flight"
+                        fetchpriority="high"
                         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     {/* Dark solid overlay — NO gradient per design rules */}
@@ -346,7 +337,7 @@ export default function Home() {
                             }}
                             style={{ paddingBottom: '3rem' }}
                         >
-                            {DESTINATIONS.map(({ city, code, detail, color, image }) => (
+                            {destinations.map(({ city, code, detail, color, image_url }) => (
                                 <SwiperSlide key={code}>
                                     <div
                                         style={{
@@ -360,8 +351,9 @@ export default function Home() {
                                     >
                                         {/* Background Image */}
                                         <img
-                                            src={image}
+                                            src={image_url}
                                             alt={city}
+                                            loading="lazy"
                                             style={{
                                                 position: 'absolute',
                                                 inset: 0,
