@@ -79,7 +79,7 @@ export default function Footer() {
                             </div>
                             <div>
                                 <div style={{
-                                    fontWeight: 800, fontSize: '1.05rem', color: '#fff',
+                                    fontWeight: 800, fontSize: '1.05rem', color: '#1d044bff',
                                     fontFamily: 'Poppins, Inter, sans-serif', lineHeight: 1.1
                                 }}>
                                     Kenya Airways
