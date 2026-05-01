@@ -143,12 +143,14 @@ export default function Home() {
     const [stats, setStats] = useState(null);
     const [loadingFlights, setLoadingFlights] = useState(true);
     const [destinations, setDestinations] = useState([]);
+    const [loadingDestinations, setLoadingDestinations] = useState(true);
 
     useEffect(() => {
         // Fetch public destinations for hero slider
         api.get('/api/flights/destinations/')
             .then(r => setDestinations(r.data.results || r.data))
-            .catch(() => { });
+            .catch(() => { })
+            .finally(() => setLoadingDestinations(false));
 
         if (user) {
             api.get('/api/flights/')
@@ -324,117 +326,123 @@ export default function Home() {
                             </p>
                         </div>
 
-                        <Swiper
-                            modules={[Autoplay, Pagination]}
-                            autoplay={{ delay: 1000, disableOnInteraction: false }}
-                            pagination={{ clickable: true }}
-                            loop
-                            spaceBetween={25}
-                            breakpoints={{
-                                0: { slidesPerView: 1 },
-                                640: { slidesPerView: 2 },
-                                900: { slidesPerView: 3 },
-                            }}
-                            style={{ paddingBottom: '3rem' }}
-                        >
-                            {destinations.map(({ city, code, detail, color, image_url }) => (
-                                <SwiperSlide key={code}>
-                                    <div
-                                        style={{
-                                            position: 'relative',
-                                            height: '420px',
-                                            borderRadius: '18px',
-                                            overflow: 'hidden',
-                                            cursor: 'pointer',
-                                            boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
-                                        }}
-                                    >
-                                        {/* Background Image */}
-                                        <img
-                                            src={image_url}
-                                            alt={city}
-                                            loading="lazy"
-                                            style={{
-                                                position: 'absolute',
-                                                inset: 0,
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover',
-                                            }}
-                                        />
-
-                                        {/* Dark Overlay */}
+                        {loadingDestinations ? (
+                            <div className="loading-page" style={{ minHeight: '30vh' }}>
+                                <div className="spinner" />
+                            </div>
+                        ) : (
+                            <Swiper
+                                modules={[Autoplay, Pagination]}
+                                autoplay={{ delay: 1000, disableOnInteraction: false }}
+                                pagination={{ clickable: true }}
+                                loop
+                                spaceBetween={25}
+                                breakpoints={{
+                                    0: { slidesPerView: 1 },
+                                    640: { slidesPerView: 2 },
+                                    900: { slidesPerView: 3 },
+                                }}
+                                style={{ paddingBottom: '3rem' }}
+                            >
+                                {destinations.map(({ city, code, detail, color, image_url }) => (
+                                    <SwiperSlide key={code}>
                                         <div
                                             style={{
-                                                position: 'absolute',
-                                                inset: 0,
-                                                background:
-                                                    'linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.25), transparent)',
-                                            }}
-                                        />
-
-                                        {/* Content */}
-                                        <div
-                                            style={{
-                                                position: 'absolute',
-                                                bottom: '1.5rem',
-                                                left: '1.5rem',
-                                                right: '1.5rem',
-                                                color: '#fff',
+                                                position: 'relative',
+                                                height: '420px',
+                                                borderRadius: '18px',
+                                                overflow: 'hidden',
+                                                cursor: 'pointer',
+                                                boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
                                             }}
                                         >
-                                            {/* Country (small text) */}
+                                            {/* Background Image */}
+                                            <img
+                                                src={image_url}
+                                                alt={city}
+                                                loading="lazy"
+                                                style={{
+                                                    position: 'absolute',
+                                                    inset: 0,
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                }}
+                                            />
+
+                                            {/* Dark Overlay */}
                                             <div
                                                 style={{
-                                                    fontSize: '0.7rem',
-                                                    letterSpacing: '0.15em',
-                                                    textTransform: 'uppercase',
-                                                    opacity: 0.8,
+                                                    position: 'absolute',
+                                                    inset: 0,
+                                                    background:
+                                                        'linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.25), transparent)',
                                                 }}
-                                            >
-                                                {detail}
-                                            </div>
+                                            />
 
-                                            {/* City */}
-                                            <h2
+                                            {/* Content */}
+                                            <div
                                                 style={{
-                                                    fontSize: '2rem',
-                                                    fontWeight: 800,
-                                                    margin: '0.3rem 0',
-                                                    color: "white"
-                                                }}
-                                            >
-                                                {city}{' '}
-                                                <span style={{ color: 'var(--red)', fontSize: '1rem' }}>
-                                                    {code}
-                                                </span>
-                                            </h2>
-
-                                            {/* Button */}
-                                            <Link
-                                                to="/register"
-                                                style={{
-                                                    display: 'block',
-                                                    fontWeight: 'bold',
-                                                    marginTop: '1rem',
-                                                    textAlign: 'center',
-                                                    padding: '0.6rem',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid rgba(255,255,255,0.4)',
+                                                    position: 'absolute',
+                                                    bottom: '1.5rem',
+                                                    left: '1.5rem',
+                                                    right: '1.5rem',
                                                     color: '#fff',
-                                                    textDecoration: 'none',
-                                                    fontSize: '0.85rem',
-                                                    backdropFilter: 'blur(6px)',
                                                 }}
-                                                className='btn-secondary'
                                             >
-                                                Book Now
-                                            </Link>
+                                                {/* Country (small text) */}
+                                                <div
+                                                    style={{
+                                                        fontSize: '0.7rem',
+                                                        letterSpacing: '0.15em',
+                                                        textTransform: 'uppercase',
+                                                        opacity: 0.8,
+                                                    }}
+                                                >
+                                                    {detail}
+                                                </div>
+
+                                                {/* City */}
+                                                <h2
+                                                    style={{
+                                                        fontSize: '2rem',
+                                                        fontWeight: 800,
+                                                        margin: '0.3rem 0',
+                                                        color: "white"
+                                                    }}
+                                                >
+                                                    {city}{' '}
+                                                    <span style={{ color: 'var(--red)', fontSize: '1rem' }}>
+                                                        {code}
+                                                    </span>
+                                                </h2>
+
+                                                {/* Button */}
+                                                <Link
+                                                    to="/register"
+                                                    style={{
+                                                        display: 'block',
+                                                        fontWeight: 'bold',
+                                                        marginTop: '1rem',
+                                                        textAlign: 'center',
+                                                        padding: '0.6rem',
+                                                        borderRadius: '8px',
+                                                        border: '1px solid rgba(255,255,255,0.4)',
+                                                        color: '#fff',
+                                                        textDecoration: 'none',
+                                                        fontSize: '0.85rem',
+                                                        backdropFilter: 'blur(6px)',
+                                                    }}
+                                                    className='btn-secondary'
+                                                >
+                                                    Book Now
+                                                </Link>
+                                            </div>
                                         </div>
-                                    </div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
+                                    </SwiperSlide>
+                                ))}
+                                </Swiper>
+                        )}
                     </div>
                 </section>
 

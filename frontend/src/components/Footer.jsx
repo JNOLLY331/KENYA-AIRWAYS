@@ -287,7 +287,6 @@ export default function Footer() {
                     style={{
                         display: 'flex', flexWrap: 'wrap', gap: '0.65rem',
                         paddingBottom: '2rem',
-                        borderBottom: '1px solid var(--border)',
                     }}
                 >
                     {CERTS.map(cert => (
@@ -310,17 +309,42 @@ export default function Footer() {
                 </div>
 
                 {/* ── Bottom bar ── */}
+                <div style={{ width: '100%', height: '1px', background: 'var(--border)', margin: '2.5rem 0 1.5rem' }} />
+                
                 <div
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         flexWrap: 'wrap', gap: '0.75rem',
-                        paddingTop: '1.5rem',
                     }}
                 >
-                    <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                        © {year} Kenya Airways Ltd. All rights reserved.
-                    </p>
-
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
+                            © {year} Kenya Airways Ltd. All rights reserved.
+                        </p>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
+                            Designed and developed by <a 
+                                href="https://japheth-anold-6zor.onrender.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ 
+                                    color: 'var(--red)', 
+                                    fontWeight: 'bold', 
+                                    textDecoration: 'none',
+                                    transition: 'all 0.3s'
+                                }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.color = '#ff4d4d';
+                                    e.currentTarget.style.textShadow = '0 0 8px rgba(192, 30, 46, 0.6)';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.color = 'var(--red)';
+                                    e.currentTarget.style.textShadow = 'none';
+                                }}
+                            >
+                                Japheth Anold
+                            </a>
+                        </p>
+                    </div>
 
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map(p => (
