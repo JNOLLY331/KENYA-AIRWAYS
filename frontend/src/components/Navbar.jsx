@@ -140,7 +140,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Toggle & Actions */}
-          <div className="show-mobile-flex" style={{ display: 'none', alignItems: 'center', gap: '1rem' }}>
+          <div className="show-mobile-flex" style={{ alignItems: 'center', gap: '1rem' }}>
             {user && (
               <button
                 onClick={handleLogout}
@@ -148,7 +148,7 @@ export default function Navbar() {
                 title="Sign Out"
                 style={{
                   background: 'none', border: 'none',
-                  color: scrolled ? '#fff' : 'var(--primary)',
+                  color: 'inherit',
                   cursor: 'pointer', display: 'flex', alignItems: 'center'
                 }}
               >
@@ -157,7 +157,7 @@ export default function Navbar() {
             )}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              style={{ background: 'none', border: 'none', color: scrolled ? '#fff' : 'var(--primary)', cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}
             >
               {mobileOpen ? <MdClose size={28} /> : <MdMenu size={28} />}
             </button>

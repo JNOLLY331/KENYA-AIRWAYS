@@ -249,6 +249,12 @@ a {
   gap: 1.5rem;
 }
 
+/* ── Utilities ───────────────────────────────────────────── */
+.show-mobile,
+.show-mobile-flex {
+  display: none !important;
+}
+
 /* ── Cards ───────────────────────────────────────────────── */
 .card {
   background: var(--navy-card);
@@ -269,7 +275,7 @@ a {
   background: var(--navy-card);
   padding: 1.5rem;
   border-radius: var(--radius-xs);
- 
+
 }
 
 .card-blue {
@@ -1482,21 +1488,22 @@ code {
     scrollbar-width: none;
     padding-bottom: 0.25rem;
   }
+
   .tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.65rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid var(--border-solid);
-  background: transparent;
-  color: var(--text-muted);
-  transition: var(--ease);
-  font-family: 'Inter', sans-serif;
-}
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-solid);
+    background: transparent;
+    color: var(--text-muted);
+    transition: var(--ease);
+    font-family: 'Inter', sans-serif;
+  }
 
 }
 
@@ -1530,6 +1537,7 @@ code {
     height: 58px;
   }
 }
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 768px) {
   .form-row {
@@ -1586,16 +1594,19 @@ code {
     color: #ffffff !important;
   }
 }
+
 @media (max-width: 768px) {
   .booking-row-grid {
     grid-template-columns: 1fr !important;
     gap: 1rem !important;
   }
+
   .booking-row-actions {
     flex-direction: row !important;
     flex-wrap: wrap;
     justify-content: flex-start !important;
   }
+
   .inquiry-search-form {
     flex-direction: column !important;
   }
@@ -1607,12 +1618,14 @@ code {
   gap: 1.5rem;
   align-items: center;
 }
+
 .booking-row-actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   align-items: flex-end;
 }
+
 .inquiry-search-form {
   display: flex;
   gap: 0.75rem;
