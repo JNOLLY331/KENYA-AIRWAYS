@@ -641,7 +641,7 @@ select option {
 }
 
 .error-msg {
-  color: #FCA5A5;
+  color: hwb(355 13% 0%);
   font-size: 0.78rem;
   margin-top: 0.2rem;
   display: flex;
@@ -664,7 +664,7 @@ select option {
 
 .badge-red {
   background: var(--red-dim);
-  color: #FDA4AF;
+  color: hsl(0, 100%, 51%);
   border: 1px solid var(--red-border);
 }
 

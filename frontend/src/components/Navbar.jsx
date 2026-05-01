@@ -22,6 +22,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -29,11 +30,13 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    logout(); // instant — clears state synchronously
     toast.success('Signed out successfully.');
     navigate('/login');
     setMobileOpen(false);
+    setIsLoggingOut(false);
   };
 
   const NAV_LINKS = [
@@ -122,7 +125,12 @@ export default function Navbar() {
                     <MdPerson size={20} />
                   </div>
                 </Link>
-                <button className="btn btn-primary btn-sm" onClick={handleLogout} title="Sign Out">
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  title="Sign Out"
+                >
                   <MdLogout size={16} />
                 </button>
               </div>
@@ -198,7 +206,8 @@ export default function Navbar() {
               ))}
             </div>
 
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+            {/* Mobile bottom actions — flexShrink:0 ensures they're never clipped */}
+            <div style={{ borderTop: '1px solid rgba(100,116,139,0.2)', paddingTop: '2rem', flexShrink: 0 }}>
               {user ? (
                 <>
                   <Link to="/profile" className="btn btn-secondary btn-xl btn-block" onClick={() => setMobileOpen(false)} style={{ justifyContent: 'center', marginBottom: '1rem' }}>
@@ -207,6 +216,7 @@ export default function Navbar() {
                   <button
                     className="btn btn-primary btn-xl btn-block"
                     onClick={handleLogout}
+                    disabled={isLoggingOut}
                     style={{ justifyContent: 'center' }}
                   >
                     <MdLogout size={20} /> Sign Out

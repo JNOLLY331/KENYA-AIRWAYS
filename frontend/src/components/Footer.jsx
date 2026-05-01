@@ -3,6 +3,7 @@
  * Uses React Icons throughout. No gradients.
  */
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { IoAirplaneSharp } from 'react-icons/io5';
 import {
     MdPhone, MdEmail, MdLocationOn, MdFlight,
@@ -16,6 +17,8 @@ import {
 } from 'react-icons/fa';
 import { RiShieldCheckLine } from 'react-icons/ri';
 import { HiOutlineTicket } from 'react-icons/hi';
+import api from '../api/axios';
+import toast from 'react-hot-toast';
 
 const SERVICES = [
     { to: '/flights', label: 'Browse Flights', Icon: MdFlight },
@@ -42,6 +45,64 @@ const SOCIAL = [
 ];
 
 const CERTS = ['IATA Certified', 'ISO 9001:2015', 'KCAA Approved', 'Star Alliance'];
+
+/* ── Newsletter form ── */
+function NewsletterForm() {
+    const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [subscribed, setSubscribed] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!email.trim()) return;
+        setLoading(true);
+        try {
+            await api.post('/api/users/newsletter/', { email });
+            setSubscribed(true);
+            setEmail('');
+            toast.success('Subscribed! Check your inbox for a confirmation email.');
+        } catch (err) {
+            const msg = err.response?.data?.error || 'Subscription failed. Please try again.';
+            toast.error(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (subscribed) {
+        return (
+            <div style={{
+                background: 'var(--navy-elevated)', border: '1px solid var(--border)',
+                borderRadius: 8, padding: '0.9rem 1rem',
+                fontSize: '0.85rem', color: 'var(--text-muted)',
+            }}>
+                ✅ You're subscribed! Check your inbox.
+            </div>
+        );
+    }
+
+    return (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                style={{ fontSize: '0.85rem', borderRadius: 8, padding: '0.65rem 0.9rem' }}
+                aria-label="Newsletter email"
+                required
+            />
+            <button type="submit" className="btn btn-primary btn-sm"
+                style={{ alignSelf: 'flex-start' }}
+                disabled={loading}>
+                {loading
+                    ? <><div className="spinner" style={{ width: 14, height: 14, borderWidth: 2, margin: 0 }} /> Subscribing…</>
+                    : <><MdSend size={14} /> Subscribe</>
+                }
+            </button>
+        </form>
+    );
+}
 
 export default function Footer() {
     const year = new Date().getFullYear();
@@ -217,21 +278,7 @@ export default function Footer() {
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem', lineHeight: 1.6 }}>
                             Get the latest flight deals, routes, and travel news.
                         </p>
-                        <form
-                            onSubmit={e => e.preventDefault()}
-                            style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
-                        >
-                            <input
-                                type="email"
-                                placeholder="your@email.com"
-                                style={{ fontSize: '0.85rem', borderRadius: 8, padding: '0.65rem 0.9rem' }}
-                                aria-label="Newsletter email"
-                            />
-                            <button type="submit" className="btn btn-primary btn-sm"
-                                style={{ alignSelf: 'flex-start' }}>
-                                <MdSend size={14} /> Subscribe
-                            </button>
-                        </form>
+                        <NewsletterForm />
                     </div>
                 </div>
 

@@ -68,17 +68,17 @@ export function AuthProvider({ children }) {
         return data; // Return data but do NOT set local tokens automatically
     };
 
-    const logout = async () => {
-        try {
-            const refresh = localStorage.getItem('refresh');
-            if (refresh) {
-                await axios.post('/api/users/logout/', { refresh });
-            }
-        } catch (err) {
-            console.error("Logout error:", err.response?.data);
-        } finally {
-            localStorage.clear();
-            setUser(null);
+    const logout = () => {
+        // Optimistic: clear local state immediately so the UI reacts instantly
+        const refresh = localStorage.getItem('refresh');
+        localStorage.clear();
+        setUser(null);
+
+        // Fire the blacklist request in the background (don't await — don't block the UI)
+        if (refresh) {
+            axios.post('/api/users/logout/', { refresh }).catch((err) => {
+                console.warn('Logout blacklist failed (token may already be expired):', err?.response?.data);
+            });
         }
     };
 

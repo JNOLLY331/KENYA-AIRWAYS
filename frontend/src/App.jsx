@@ -17,6 +17,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Flights from './pages/Flights';
@@ -82,7 +83,10 @@ function AppShell() {
           {/* Public-only (redirects to home if already logged in) */}
           <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
           <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
-          <Route path="/reset-password" element={<PublicOnlyRoute><ResetPassword /></PublicOnlyRoute>} />
+
+          {/* Password reset & email verification — always public (reached via email links) */}
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Private — requires login */}
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />

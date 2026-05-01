@@ -1,32 +1,53 @@
 /**
  * Login.jsx — sign in page.
- * Refactored to use brand design system and Vanilla CSS classes.
+ * Handles email verification banners from ?verified= URL param.
  */
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 import { IoAirplaneSharp } from 'react-icons/io5';
 import {
     MdPerson, MdLock, MdVisibility,
-    MdVisibilityOff, MdLogin, MdErrorOutline
+    MdVisibilityOff, MdLogin, MdErrorOutline,
+    MdCheckCircle, MdMarkEmailRead, MdRefresh,
 } from 'react-icons/md';
 
 export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
     const { state } = useLocation();
+    const [searchParams] = useSearchParams();
+    const verifiedParam = searchParams.get('verified');   // 'true' | null
 
     const [form, setForm] = useState({ email: state?.email || '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPass, setShowPass] = useState(false);
+    const [notVerifiedEmail, setNotVerifiedEmail] = useState(null); // email that needs verification
+    const [resending, setResending] = useState(false);
 
     const set = (key, val) => {
         setForm(f => ({ ...f, [key]: val }));
         setError('');
+        setNotVerifiedEmail(null);
+    };
+
+    const handleResend = async () => {
+        const emailToUse = notVerifiedEmail || form.email;
+        if (!emailToUse) return;
+        setResending(true);
+        try {
+            await api.post('/api/users/resend-verification/', { email: emailToUse });
+            toast.success('Verification email sent! Check your inbox.');
+        } catch {
+            toast.error('Could not resend. Please try again.');
+        } finally {
+            setResending(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -37,12 +58,26 @@ export default function Login() {
         }
 
         setLoading(true);
+        setNotVerifiedEmail(null);
         try {
             const user = await login(form.email, form.password);
-            toast.success(`Welcome back, ${user.email || form.email}!`);
+            toast.success(`Welcome back, ${user.username || user.email}!`);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.detail || 'Incorrect email or password.');
+            const data = err.response?.data || {};
+            // Check nested arrays (DRF ValidationError format) or plain detail
+            const detail = Array.isArray(data.detail) ? data.detail[0] : data.detail;
+            const nonFieldErrors = data.non_field_errors?.[0] || '';
+            const msg = detail || nonFieldErrors || 'Incorrect email or password.';
+
+            // Check if it's the email-not-verified error
+            if (data.code === 'email_not_verified' ||
+                (typeof msg === 'string' && msg.toLowerCase().includes('verify'))) {
+                setNotVerifiedEmail(form.email);
+                setError(msg);
+            } else {
+                setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+            }
         } finally {
             setLoading(false);
         }
@@ -86,10 +121,46 @@ export default function Login() {
                     </p>
                 </div>
 
+                {/* Email verified success banner (from ?verified=true redirect) */}
+                {verifiedParam === 'true' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        className="alert"
+                        style={{ background: 'var(--success-dim)', border: '1px solid #86EFAC', color: '#166534', marginBottom: '1.25rem' }}>
+                        <MdCheckCircle size={17} style={{ color: '#166534' }} />
+                        Email verified successfully! You can now sign in.
+                    </motion.div>
+                )}
+
                 {/* Error alert */}
                 {error && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="alert alert-error">
                         <MdErrorOutline size={17} /> {error}
+                    </motion.div>
+                )}
+
+                {/* Email not verified — show resend option */}
+                {notVerifiedEmail && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        style={{
+                            background: 'rgba(251,191,36,0.1)', border: '1px solid #FBBF24',
+                            borderRadius: 8, padding: '0.85rem 1rem', marginBottom: '1rem',
+                            display: 'flex', alignItems: 'flex-start', gap: '0.65rem',
+                        }}>
+                        <MdMarkEmailRead size={18} style={{ color: '#FBBF24', flexShrink: 0, marginTop: 2 }} />
+                        <div style={{ flex: 1 }}>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                                Email not verified
+                            </p>
+                            <p style={{ margin: '0.2rem 0 0.6rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                Check your inbox for the verification link, or resend it.
+                            </p>
+                            <button className="btn btn-secondary btn-sm" onClick={handleResend} disabled={resending}>
+                                {resending
+                                    ? <><div className="spinner" style={{ width: 14, height: 14, borderWidth: 2, margin: 0 }} /> Sending…</>
+                                    : <><MdRefresh size={14} /> Resend Email</>
+                                }
+                            </button>
+                        </div>
                     </motion.div>
                 )}
 

@@ -78,7 +78,7 @@ export default function BookingForm({ booking, onClose, onSaved }) {
                 const { data: passData } = await api.post('/api/passengers/', {
                     full_name: fullName,
                     passport_number: randomPassport,
-                    phone: '+254700000000',
+                    phone: user?.phone_number || 'Kenya',
                     email: user?.email || 'passenger@kenya-airways.com'
                 });
                 passId = passData.id;

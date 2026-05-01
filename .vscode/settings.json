@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./backend/venv/lib64/python3.13/site-packages"
+    ]
+}
