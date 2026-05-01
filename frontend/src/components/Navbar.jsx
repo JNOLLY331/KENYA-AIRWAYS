@@ -139,14 +139,29 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Toggle */}
-          <button
-            className="show-mobile-flex"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            style={{ background: 'none', border: 'none', color: scrolled ? '#fff' : 'var(--primary)', cursor: 'pointer', display: 'none' }}
-          >
-            {mobileOpen ? <MdClose size={28} /> : <MdMenu size={28} />}
-          </button>
+          {/* Mobile Toggle & Actions */}
+          <div className="show-mobile-flex" style={{ display: 'none', alignItems: 'center', gap: '1rem' }}>
+            {user && (
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                title="Sign Out"
+                style={{
+                  background: 'none', border: 'none',
+                  color: scrolled ? '#fff' : 'var(--primary)',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center'
+                }}
+              >
+                <MdLogout size={24} />
+              </button>
+            )}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              style={{ background: 'none', border: 'none', color: scrolled ? '#fff' : 'var(--primary)', cursor: 'pointer' }}
+            >
+              {mobileOpen ? <MdClose size={28} /> : <MdMenu size={28} />}
+            </button>
+          </div>
         </div>
       </header>
 

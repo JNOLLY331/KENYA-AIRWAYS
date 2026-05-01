@@ -282,6 +282,28 @@ export default function Footer() {
                     </div>
                 </div>
 
+                {/* ── Location Map ── */}
+                <div style={{
+                    width: '100%',
+                    height: '240px',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--border)',
+                    marginBottom: '2.5rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+                }}>
+                    <iframe
+                        title="Kenya Airways Headquarters"
+                        src="https://maps.google.com/maps?q=Jomo%20Kenyatta%20International%20Airport,%20Nairobi&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0, filter: 'grayscale(20%)' }}
+                        allowFullScreen=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                    />
+                </div>
+
                 {/* ── Certifications bar ── */}
                 <div
                     style={{
@@ -310,7 +332,7 @@ export default function Footer() {
 
                 {/* ── Bottom bar ── */}
                 <div style={{ width: '100%', height: '1px', background: 'var(--border)', margin: '2.5rem 0 1.5rem' }} />
-                
+
                 <div
                     style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -322,13 +344,13 @@ export default function Footer() {
                             © {year} Kenya Airways Ltd. All rights reserved.
                         </p>
                         <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
-                            Designed and developed by <a 
+                            Designed and developed by <a
                                 href="https://japheth-anold-6zor.onrender.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                style={{ 
-                                    color: 'var(--red)', 
-                                    fontWeight: 'bold', 
+                                style={{
+                                    color: 'var(--red)',
+                                    fontWeight: 'bold',
                                     textDecoration: 'none',
                                     transition: 'all 0.3s'
                                 }}
