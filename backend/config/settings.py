@@ -233,22 +233,22 @@ SIMPLE_JWT = {
 
 APPEND_SLASH = True
 
-# ── Email configuration (Gmail SMTP) ─────────────────────────────────
-# Email settings (Resend API via HTTP to bypass Render SMTP blocks)
-RESEND_API_KEY = config('RESEND_API_KEY', default='')
+# ── Email configuration (Brevo API via HTTPS — works on Render free tier) ────
+# Brevo uses an HTTPS API (not SMTP), so it bypasses Render's blocked SMTP ports.
+# Free tier: 300 emails/day. No custom domain required — just verify a sender email.
+BREVO_API_KEY = config('BREVO_API_KEY', default='')
 
-if RESEND_API_KEY:
-    EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+if BREVO_API_KEY:
+    EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
     ANYMAIL = {
-        "RESEND_API_KEY": RESEND_API_KEY,
+        'BREVO_API_KEY': BREVO_API_KEY,
     }
 else:
-    # If no key is set, fail cleanly to console instead of crashing
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    # Fallback: print emails to console if no API key is configured
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# For Resend sandbox/testing without a verified domain, you MUST send TO your own email 
-# and use the default onboard email. For production, replace with your verified domain email.
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
+# Must match a verified sender email/domain in your Brevo account.
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Kenya Airways <noreply@example.com>')
 
 # Frontend base URL for email links
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
