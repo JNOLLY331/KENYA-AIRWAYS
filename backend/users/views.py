@@ -3,16 +3,18 @@ users/views.py — Authentication, email verification, and password-reset views.
 
 Flow:
   1. POST /api/users/register/       → creates user, sends verification email
-  2. GET  /api/users/verify-email/<token>/  → marks user as verified, redirects to login
+  2. Email link → /verify-email?token=<uuid> (frontend) → JS calls:
+     GET  /api/users/verify-email/<uuid>/ → marks user as verified (returns JSON)
+     → frontend navigates to /login?verified=true
   3. POST /api/users/login/          → returns JWT tokens (only works if email is verified)
   4. POST /api/users/request-password-reset/  → sends reset-link email
-  5. POST /api/users/confirm-password-reset/  → validates token, sets new password
+  5. Email link → /reset-password?token=<uuid> (frontend) → user submits:
+     POST /api/users/confirm-password-reset/  → validates token, sets new password
 """
 import logging
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django.shortcuts import redirect
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -56,12 +58,13 @@ class RegisterView(generics.CreateAPIView):
 def _send_verification_email(user: User):
     """
     Build and send the email-verification link.
-    The link points to the Django API (BACKEND_URL), which verifies the token
-    and then redirects the browser to /login?verified=true on the frontend.
+    The link points directly to the FRONTEND at /verify-email?token=<uuid>.
+    The VerifyEmail.jsx page calls POST /api/users/verify-email/<token>/ and
+    shows success / error feedback to the user — no cross-origin redirect needed.
     """
-    backend_url = getattr(settings, 'BACKEND_URL', 'http://localhost:8000')
-    # Link → Django API → verifies account → 302 redirect → /login?verified=true
-    link = f"{backend_url}/api/users/verify-email/{user.email_verification_token}/"
+    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+    # Link → Frontend /verify-email?token=<uuid> → JS calls backend API → verified
+    link = f"{frontend_url}/verify-email?token={user.email_verification_token}"
     try:
         send_mail(
             subject='Kenya Airways – Verify Your Email Address',
@@ -125,20 +128,28 @@ def _send_verification_email(user: User):
 def verify_email(request, token):
     """
     GET /api/users/verify-email/<uuid:token>/
-    Marks the account as verified and redirects the browser to the login
-    page (on the frontend) with a success flag.
+
+    Called by VerifyEmail.jsx via Axios (XHR) after the user clicks the
+    email link (which now points to /verify-email?token=<uuid> on the frontend).
+
+    Returns JSON so Axios can handle it without cross-origin redirect issues.
+    On success: {"verified": true, "message": "..."}
+    On failure: HTTP 400 {"error": "Invalid or already-used verification link."}
     """
-    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
     try:
         user = User.objects.get(email_verification_token=token)
     except User.DoesNotExist:
-        return redirect(f"{frontend_url}/login?verified=invalid")
+        return Response(
+            {'error': 'Invalid or already-used verification link.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     if not user.is_email_verified:
         user.is_email_verified = True
         user.save(update_fields=['is_email_verified'])
+        logger.info("Email verified for user %s", user.email)
 
-    return redirect(f"{frontend_url}/login?verified=true")
+    return Response({'verified': True, 'message': 'Email verified successfully.'})
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -150,7 +161,17 @@ def login_view(request):
     serializer = LoginSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    errors = serializer.errors
+    # Flatten non_field_errors so the frontend sees a top-level 'code' field.
+    # DRF wraps raise serializers.ValidationError({...}) as:
+    #   {"non_field_errors": [{"detail": "...", "code": "..."}]}
+    # We unwrap the first item and return it directly.
+    non_field = errors.get('non_field_errors', [])
+    if non_field and isinstance(non_field[0], dict):
+        return Response(non_field[0], status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ─────────────────────────────────────────────────────────────────────

@@ -36,22 +36,23 @@ export default function VerifyEmail() {
     const [resendEmail, setResendEmail] = useState('');
     const [resending, setResending] = useState(false);
 
-    /* ── If a raw token is in the URL: call the backend, then redirect ── */
+    /* ── If a raw token is in the URL: call the backend API, then redirect ── */
     useEffect(() => {
         if (!tokenParam) return;
 
         (async () => {
             try {
-                // Hit the Django endpoint directly (it returns 302, axios follows it,
-                // but since we're in a fetch/XHR context the redirect stays internal)
+                // Backend now returns JSON: { verified: true, message: "..." }
+                // or HTTP 400: { error: "Invalid or already-used verification link." }
                 await api.get(`/api/users/verify-email/${tokenParam}/`);
-                // If no error thrown, treat as success
                 setStatus('success');
                 toast.success('Email verified! You can now log in.');
-                setTimeout(() => navigate('/login?verified=true', { replace: true }), 1800);
+                setTimeout(() => navigate('/login?verified=true', { replace: true }), 2200);
             } catch (err) {
-                // The Django view redirects on invalid token which may surface as a 404/400
+                // 400 = invalid / already-used token
                 setStatus('invalid');
+                const msg = err.response?.data?.error;
+                if (msg) toast.error(msg);
             }
         })();
     }, [tokenParam]); // eslint-disable-line react-hooks/exhaustive-deps

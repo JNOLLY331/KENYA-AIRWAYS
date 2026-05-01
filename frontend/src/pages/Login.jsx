@@ -65,12 +65,15 @@ export default function Login() {
             navigate('/');
         } catch (err) {
             const data = err.response?.data || {};
-            // Check nested arrays (DRF ValidationError format) or plain detail
-            const detail = Array.isArray(data.detail) ? data.detail[0] : data.detail;
-            const nonFieldErrors = data.non_field_errors?.[0] || '';
-            const msg = detail || nonFieldErrors || 'Incorrect email or password.';
+            // Backend now returns a flat object: { detail: "...", code: "..." }
+            // or for field errors: { email: [...], non_field_errors: [...] }
+            const detail = data.detail;
+            const nonFieldErrors = Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : null;
+            const msg = (typeof detail === 'string' ? detail : null)
+                || (typeof nonFieldErrors === 'string' ? nonFieldErrors : null)
+                || 'Incorrect email or password.';
 
-            // Check if it's the email-not-verified error
+            // Check for the email-not-verified marker
             if (data.code === 'email_not_verified' ||
                 (typeof msg === 'string' && msg.toLowerCase().includes('verify'))) {
                 setNotVerifiedEmail(form.email);

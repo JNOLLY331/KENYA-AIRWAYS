@@ -1,6 +1,7 @@
 import re
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 
@@ -65,14 +66,13 @@ class LoginSerializer(serializers.Serializer):
         )
 
         if not user:
-            raise serializers.ValidationError({
-                "detail": "Invalid email or password."
-            })
+            raise serializers.ValidationError("Invalid email or password.")
 
         if not user.is_email_verified:
+            # Use a special marker the frontend can detect
             raise serializers.ValidationError({
                 "detail": "Please verify your email address before logging in.",
-                "code": "email_not_verified"
+                "code": "email_not_verified",
             })
 
         refresh = RefreshToken.for_user(user)
