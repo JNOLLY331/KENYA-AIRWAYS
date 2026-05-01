@@ -163,10 +163,15 @@ def login_view(request):
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
     errors = serializer.errors
-    # Flatten non_field_errors so the frontend sees a top-level 'code' field.
-    # DRF wraps raise serializers.ValidationError({...}) as:
-    #   {"non_field_errors": [{"detail": "...", "code": "..."}]}
-    # We unwrap the first item and return it directly.
+
+    # DRF converts dictionary values to lists of ErrorDetails.
+    # We unpack them so the frontend receives a flat string for detail and code.
+    if 'detail' in errors and 'code' in errors:
+        detail = errors['detail'][0] if isinstance(errors['detail'], list) else errors['detail']
+        code = errors['code'][0] if isinstance(errors['code'], list) else errors['code']
+        return Response({'detail': detail, 'code': code}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Alternatively, if a simple ValidationError("string") was raised:
     non_field = errors.get('non_field_errors', [])
     if non_field and isinstance(non_field[0], dict):
         return Response(non_field[0], status=status.HTTP_400_BAD_REQUEST)
