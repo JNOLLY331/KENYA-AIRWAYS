@@ -59,11 +59,14 @@ INSTALLED_APPS = [
     'reports',
     'users',
     
-     # Third-party
+     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'anymail',
+    
+    # Local apps
     'cloudinary',
     'cloudinary_storage',
     
@@ -231,14 +234,21 @@ SIMPLE_JWT = {
 APPEND_SLASH = True
 
 # ── Email configuration (Gmail SMTP) ─────────────────────────────────
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_TIMEOUT = 5  # Fail fast! Render free tier blocks SMTP ports and causes 30s hangs.
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Kenya Airways <noreply@kenya-airways.com>')
+# Email settings (Resend API via HTTP to bypass Render SMTP blocks)
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
+
+if RESEND_API_KEY:
+    EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+    ANYMAIL = {
+        "RESEND_API_KEY": RESEND_API_KEY,
+    }
+else:
+    # If no key is set, fail cleanly to console instead of crashing
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# For Resend sandbox/testing without a verified domain, you MUST send TO your own email 
+# and use the default onboard email. For production, replace with your verified domain email.
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='onboarding@resend.dev')
 
 # Frontend base URL for email links
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
