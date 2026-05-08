@@ -68,7 +68,7 @@ export default function Navbar() {
           width: '100%',
           zIndex: 999,
           backdropFilter: 'blur(16px)',
-          background: scrolled ? 'rgba(0, 31, 63, 0.95)' : 'rgba(255, 255, 255, 0.8)',
+          background: scrolled ? 'rgba(0, 31, 63, 0.95)' : 'rgba(231, 216, 216, 0.8)',
           borderBottom: '1px solid var(--border)',
           transition: 'var(--ease)',
           color: scrolled ? '#fff' : 'var(--text-primary)'
@@ -82,9 +82,9 @@ export default function Navbar() {
             <h1 style={{
               fontSize: '1.25rem',
               fontWeight: 800,
-              fontStyle: 'italic',
               color: scrolled ? '#fff' : 'var(--primary)',
-              margin: 0
+              margin: 0,   
+              textTransform: 'uppercase',              
             }}>
               Kenya Airways
             </h1>
@@ -131,7 +131,7 @@ export default function Navbar() {
                   disabled={isLoggingOut}
                   title="Sign Out"
                 >
-                  <MdLogout size={16} />
+                  Sign Out
                 </button>
               </div>
             ) : (
@@ -147,12 +147,13 @@ export default function Navbar() {
                 disabled={isLoggingOut}
                 title="Sign Out"
                 style={{
-                  background: 'none', border: 'none',
+                  background: 'none', border: '1px solid rgba(168, 2, 2, 0.91)', padding: '0.1rem 0.4rem', borderRadius: 8,
                   color: 'inherit',
+                  fontSize: '0.75rem',
                   cursor: 'pointer', display: 'flex', alignItems: 'center'
                 }}
               >
-                <MdLogout size={24} />
+                Logout
               </button>
             )}
             <button
@@ -234,7 +235,7 @@ export default function Navbar() {
                     disabled={isLoggingOut}
                     style={{ justifyContent: 'center' }}
                   >
-                    <MdLogout size={20} /> Sign Out
+                   Sign Out
                   </button>
                 </>
               ) : (

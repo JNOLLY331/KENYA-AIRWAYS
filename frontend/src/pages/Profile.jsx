@@ -57,7 +57,7 @@ export default function Profile() {
                             <div>
                                 <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase' }}>Account Role</small>
                                 <div style={{ fontSize: '1.1rem', fontWeight: 600, color: profile.is_staff ? 'var(--red)' : 'var(--text-primary)' }}>
-                                    {profile.is_staff ? 'System Administrator' : 'Frequent Flyer'}
+                                    {profile.is_staff ? 'System Administrator' : 'me'}
                                 </div>
                             </div>
                         </div>

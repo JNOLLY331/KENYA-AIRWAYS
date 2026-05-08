@@ -1,14 +1,11 @@
 """
-users/views.py — Authentication, email verification, and password-reset views.
+users/views.py — Authentication and password-reset views.
 
 Flow:
-  1. POST /api/users/register/       → creates user, sends verification email
-  2. Email link → /verify-email?token=<uuid> (frontend) → JS calls:
-     GET  /api/users/verify-email/<uuid>/ → marks user as verified (returns JSON)
-     → frontend navigates to /login?verified=true
-  3. POST /api/users/login/          → returns JWT tokens (only works if email is verified)
-  4. POST /api/users/request-password-reset/  → sends reset-link email
-  5. Email link → /reset-password?token=<uuid> (frontend) → user submits:
+  1. POST /api/users/register/       → creates user (immediately active, no email verification needed)
+  2. POST /api/users/login/          → returns JWT tokens
+  3. POST /api/users/request-password-reset/  → sends reset-link email
+  4. Email link → /reset-password?token=<uuid> (frontend) → user submits:
      POST /api/users/confirm-password-reset/  → validates token, sets new password
 """
 import logging
@@ -38,20 +35,10 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        # Send verification email — catch any SMTP/config error so it never
-        # causes a 500; the account is created regardless, error is logged.
-        try:
-            _send_verification_email(user)
-        except Exception as exc:
-            logger.error("Verification email failed for %s: %s", user.email, exc)
+        user = serializer.save()  # is_email_verified=True set in serializer
 
         return Response({
-            'message': (
-                'Account created successfully. '
-                'Please check your email to verify your account before logging in.'
-            ),
+            'message': 'Account created successfully. You can now log in.',
         }, status=status.HTTP_201_CREATED)
 
 

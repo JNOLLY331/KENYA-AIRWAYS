@@ -1,13 +1,11 @@
 /**
- * Register.jsx — account creation page with email-verification confirmation.
- * After successful registration the user sees a "check your email" screen
- * instead of being immediately logged in.
+ * Register.jsx — account creation page.
+ * After successful registration the user is sent directly to the login page.
  */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 import { IoAirplaneSharp } from 'react-icons/io5';
@@ -16,7 +14,6 @@ import {
     MdLock, MdVisibility, MdVisibilityOff,
     MdPersonAdd, MdLogin,
     MdCheckCircle, MdErrorOutline,
-    MdMarkEmailRead, MdRefresh,
 } from 'react-icons/md';
 
 /* ── Helper input field ─────────────────────────────────── */
@@ -53,63 +50,7 @@ const Field = ({ id, label, Icon, type = 'text', placeholder, value, onChange, e
 );
 
 /* ── Email sent confirmation screen ─────────────────────── */
-function EmailSentScreen({ email, onResend, resending }) {
-    return (
-        <motion.div
-            key="email-sent"
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-            style={{
-                width: '100%', maxWidth: 480,
-                background: 'var(--navy-card)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-xl)',
-                padding: '3rem 2.5rem',
-                textAlign: 'center',
-            }}
-        >
-            {/* Icon */}
-            <div style={{
-                width: 72, height: 72, borderRadius: '50%',
-                background: 'rgba(192, 30, 46, 0.12)',
-                border: '2px solid var(--red)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 1.5rem',
-            }}>
-                <MdMarkEmailRead size={36} style={{ color: 'var(--red)' }} />
-            </div>
 
-            <h1 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Check Your Email</h1>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '2rem' }}>
-                We sent a verification link to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>.
-                Click the link in the email to activate your account, then log in.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <Link to="/login" className="btn btn-primary btn-lg btn-block">
-                    <MdLogin size={18} /> Go to Login
-                </Link>
-                <button
-                    className="btn btn-secondary btn-block"
-                    onClick={onResend}
-                    disabled={resending}
-                    style={{ justifyContent: 'center' }}
-                >
-                    {resending ? (
-                        <><div className="spinner" style={{ width: 16, height: 16, borderWidth: 2, margin: 0 }} /> Sending…</>
-                    ) : (
-                        <><MdRefresh size={16} /> Resend Verification Email</>
-                    )}
-                </button>
-            </div>
-
-            <p style={{ marginTop: '1.5rem', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                Can't find the email? Check your spam folder.
-            </p>
-        </motion.div>
-    );
-}
 
 /* ── Main Register page ─────────────────────────────────── */
 export default function Register() {
@@ -124,8 +65,6 @@ export default function Register() {
     const [errors, setErrors] = useState({});
     const [showPass, setShowPass] = useState(false);
     const [showConf, setShowConf] = useState(false);
-    const [registered, setRegistered] = useState(false);     // show email-sent screen
-    const [resending, setResending] = useState(false);
 
     const set = (key, val) => {
         setForm(f => ({ ...f, [key]: val }));
@@ -169,8 +108,9 @@ export default function Register() {
                 password: form.password,
                 phone_number: form.phone_number,
             });
-            // Show the "check your email" confirmation
-            setRegistered(true);
+            // Account created — redirect straight to login
+            toast.success('Account created! You can now sign in.');
+            navigate('/login', { state: { email: form.email } });
         } catch (err) {
             const data = err.response?.data || {};
             const next = {};
@@ -187,36 +127,6 @@ export default function Register() {
             setLoading(false);
         }
     };
-
-    /* ── Resend verification ──────────────────────────────── */
-    const handleResend = async () => {
-        setResending(true);
-        try {
-            await api.post('/api/users/resend-verification/', { email: form.email });
-            toast.success('Verification email resent! Check your inbox.');
-        } catch {
-            toast.error('Could not resend — please try again shortly.');
-        } finally {
-            setResending(false);
-        }
-    };
-
-    /* ── Show email-sent screen after registration ──────── */
-    if (registered) {
-        return (
-            <div style={{
-                flex: 1, display: 'flex', alignItems: 'center',
-                justifyContent: 'center', minHeight: '60vh',
-                paddingTop: 100, paddingBottom: 50,
-            }}>
-                <EmailSentScreen
-                    email={form.email}
-                    onResend={handleResend}
-                    resending={resending}
-                />
-            </div>
-        );
-    }
 
     /* ── Registration form ────────────────────────────────── */
     return (
@@ -312,7 +222,7 @@ export default function Register() {
                         value={form.email}
                         onChange={e => set('email', e.target.value)}
                         error={errors.email}
-                        placeholder="you@example.com"
+                        placeholder="japhethanold2@gmail.com.com"
                         autoComplete="email"
                     />
 

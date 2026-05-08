@@ -123,7 +123,7 @@ export default function Booking() {
                             </button>
                         ))}
                     </div>
-                </div>
+                </div>e
 
                 {/* ── INQUIRY TAB ── */}
                 {tab === 'inquiry' && (

@@ -48,18 +48,18 @@ export default function NotFound() {
                     </h2>
 
                     <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: 500, margin: '0 auto 3rem', lineHeight: 1.8 }}>
-                        The destination you requested is currently unavailable in our flight path.
-                        Let’s navigate you back to the Pride of Africa terminal.
+                        The destination you requested is currently unavailable in our flight category.
+                        Kindly consider booking another flight.
                     </p>
 
                     {/* Actions */}
                     <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                         <Link to="/" className="btn btn-primary btn-xl" style={{ boxShadow: 'var(--shadow-red)' }}>
-                            <MdHome size={20} /> Back to Terminal
+                            <MdHome size={20} /> Back to Flights
                         </Link>
 
                         <Link to="/help" className="btn btn-secondary btn-xl">
-                            <MdHelpOutline size={20} /> Portal Support
+                            <MdHelpOutline size={20} /> Helpline
                         </Link>
                     </div>
                 </motion.div>

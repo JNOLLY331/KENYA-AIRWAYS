@@ -41,7 +41,7 @@ export default function AdminDashboard() {
                     {/* Add Super User Form */}
                     <div className="card-static" style={{ padding: '2rem' }}>
                         <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                            <MdPersonAdd size={20} color="var(--red)"/> Create Super User
+                            <MdPersonAdd size={20} color="var(--red)"/> Add another Admin
                         </h3>
                         <form onSubmit={handleCreateSuperUser} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div className="form-group">

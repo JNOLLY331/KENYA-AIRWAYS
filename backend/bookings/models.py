@@ -27,7 +27,7 @@ class Booking(models.Model):
     
     # Seat and Status
     seat_number = models.CharField(max_length=10) 
-    booking_status = models.CharField(max_length=20, default='Confirmed')
+    booking_status = models.CharField(max_length=20, default='pending')
     payment_status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

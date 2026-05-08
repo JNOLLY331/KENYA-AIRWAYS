@@ -44,9 +44,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value.lower()
 
     def create(self, validated_data):
-        # Create user; they must verify email before logging in
+        # Create user — no email verification required; account is active immediately.
         user = User.objects.create_user(**validated_data)
-        user.is_email_verified = False
+        user.is_email_verified = True
         user.save(update_fields=['is_email_verified'])
         return user
 
@@ -67,13 +67,6 @@ class LoginSerializer(serializers.Serializer):
 
         if not user:
             raise serializers.ValidationError("Invalid email or password.")
-
-        if not user.is_email_verified:
-            # Use a special marker the frontend can detect
-            raise serializers.ValidationError({
-                "detail": "Please verify your email address before logging in.",
-                "code": "email_not_verified",
-            })
 
         refresh = RefreshToken.for_user(user)
 

@@ -76,7 +76,7 @@ function NewsletterForm() {
                 borderRadius: 8, padding: '0.9rem 1rem',
                 fontSize: '0.85rem', color: 'var(--text-muted)',
             }}>
-                ✅ You're subscribed! Check your inbox.
+                 You're subscribed! Check your inbox.
             </div>
         );
     }
@@ -302,6 +302,7 @@ export default function Footer() {
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
                     />
+                    
                 </div>
 
                 {/* ── Certifications bar ── */}
@@ -356,7 +357,7 @@ export default function Footer() {
                                 }}
                                 onMouseOver={e => {
                                     e.currentTarget.style.color = '#ff4d4d';
-                                    e.currentTarget.style.textShadow = '0 0 8px rgba(192, 30, 46, 0.6)';
+                                    e.currentTarget.style.textShadow = '0 0 8px hsla(0, 0%, 100%, 0.60)';
                                 }}
                                 onMouseOut={e => {
                                     e.currentTarget.style.color = 'var(--red)';
